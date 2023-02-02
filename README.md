@@ -1,3 +1,3 @@
 # go-observability-examples
 
-Example of observability in golang. Test 2.
+Example of observability in golang. Test 3.
