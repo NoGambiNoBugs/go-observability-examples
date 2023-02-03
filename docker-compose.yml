@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:13.7
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: example-local
+      POSTGRES_PASSWORD: example-local
+      POSTGRES_USER: example-local
+    networks: 
+      - internal
+
+networks:
+  internal:
+    driver: bridge
