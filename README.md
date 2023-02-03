@@ -31,7 +31,7 @@ go run ./cmd/server/server.go
 ## Testing
 
 ```curl
-curl -d '{"name":"Fulano", "email":"fulano@test.com"}' -H "Content-Type: application/json" -X POST http://localhost:8080/customers/
+
 ```
 
 ## Shutdown

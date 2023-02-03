@@ -16,6 +16,7 @@ type Handler struct {
 // PostCustomer handle a new request to connect with create customer usecase.
 func (h Handler) PostCustomer(w http.ResponseWriter, r *http.Request) {
 	var customer entity.Customer
+
 	err := json.NewDecoder(r.Body).Decode(&customer)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
