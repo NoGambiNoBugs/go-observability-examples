@@ -5,12 +5,12 @@ import (
 	"net/http"
 
 	"github.com/NoGambiNoBugs/go-observability-examples/internal/entity"
-	"github.com/NoGambiNoBugs/go-observability-examples/internal/usecase"
+	"github.com/NoGambiNoBugs/go-observability-examples/internal/port"
 )
 
 // Handler contains the handlers to HTTP API.
 type Handler struct {
-	usecase usecase.CustomerUsecase
+	usecase port.CustomerUsecase
 }
 
 // PostCustomer handle a new request to connect with create customer usecase.
@@ -31,7 +31,7 @@ func (h Handler) PostCustomer(w http.ResponseWriter, r *http.Request) {
 }
 
 // New returns a instance of Handler.
-func New(usecase usecase.CustomerUsecase) Handler {
+func New(usecase port.CustomerUsecase) Handler {
 	return Handler{
 		usecase: usecase,
 	}

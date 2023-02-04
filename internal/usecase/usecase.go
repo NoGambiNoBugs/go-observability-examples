@@ -4,13 +4,13 @@ import (
 	"context"
 
 	"github.com/NoGambiNoBugs/go-observability-examples/internal/entity"
-	"github.com/NoGambiNoBugs/go-observability-examples/internal/repository"
+	"github.com/NoGambiNoBugs/go-observability-examples/internal/port"
 	"github.com/google/uuid"
 )
 
 // CustomerUsecase manage the usecases for customer
 type CustomerUsecase struct {
-	repo repository.Repository
+	repo port.Repository
 }
 
 // Create a new customer.
@@ -20,7 +20,7 @@ func (c CustomerUsecase) Create(ctx context.Context, customer entity.Customer) e
 }
 
 // New returns a instance of CustomerUsecase.
-func New(repo repository.Repository) CustomerUsecase {
+func New(repo port.Repository) CustomerUsecase {
 	return CustomerUsecase{
 		repo: repo,
 	}

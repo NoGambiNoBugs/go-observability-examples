@@ -6,9 +6,11 @@ import (
 
 	_ "github.com/NoGambiNoBugs/go-observability-examples/internal/env" //no lint
 	"github.com/NoGambiNoBugs/go-observability-examples/internal/handler"
+	logDecorator "github.com/NoGambiNoBugs/go-observability-examples/internal/port/decorators/log"
 	"github.com/NoGambiNoBugs/go-observability-examples/internal/repository"
 	"github.com/NoGambiNoBugs/go-observability-examples/internal/tools/postgres"
 	"github.com/NoGambiNoBugs/go-observability-examples/internal/usecase"
+	"github.com/rs/zerolog"
 )
 
 type App struct {
@@ -54,8 +56,11 @@ func Setup() (App, error) {
 		return App{}, err
 	}
 
-	repo := repository.New(db)
-	usecase := usecase.New(repo)
+	logger := zerolog.New(zerolog.ConsoleWriter{Out: os.Stdout}).With().Logger()
+	zerolog.DefaultContextLogger = &logger
+
+	repo := logDecorator.NewRepositoryWithLog(repository.New(db))
+	usecase := logDecorator.NewCustomerUsecaseWithLog(usecase.New(repo))
 	h := handler.New(usecase)
 
 	return App{
