@@ -1,0 +1,96 @@
+import (
+  "fmt"
+  "strings"
+  "time"
+  "os"
+
+  "github.com/prometheus/client_golang/prometheus"
+)
+
+{{ $decorator := (or .Vars.DecoratorName (printf "%sWithREDHistogram" .Interface.Name)) }}
+{{ $decoratorVec := (print $decorator "Vec") }}
+{{ $generic_type := (or .Vars.GenericType (printf "")) }}
+{{ $generic_vars := (or .Vars.GenericVars (printf "")) }}
+
+{{ $namespace := (or .Vars.Namespace (printf "system")) }}
+{{ $metric_name := (or .Vars.MetricName (printf "%s_red" (snake .Interface.Name))) }}
+{{ $metric_help := (or .Vars.MetricHelp (printf "%s RED histogram (rate, errors and duration)." (.Interface.Name))) }}
+{{ $bucket_func := (or .Vars.BucketFunc (printf "ExponentialBuckets(100, 2, 5)")) }}
+
+var {{$decoratorVec}} *prometheus.HistogramVec
+
+// {{$decorator}} implements {{.Interface.Type}} interface with all methods wrapped with RED Histogram metric
+type {{$decorator}}{{$generic_type}} struct {
+  metricName string
+  base {{.Interface.Type}}{{$generic_vars}}
+}
+
+// MetricName returns the metric name generated for {{.Interface.Type}}
+func(d {{$decorator}}{{$generic_vars}}) MetricName() string {
+  return d.metricName
+}
+
+{{range $method := .Interface.Methods}}
+  // {{$method.Name}} implements {{$.Interface.Type}}
+  func (d {{$decorator}}{{$generic_vars}}) {{$method.Declaration}} {
+      since := time.Now()
+      defer func() {
+        status := "ok"
+        {{- if $method.ReturnsError}}
+          if err != nil {
+            status = "error"
+          }
+        {{end}}
+
+        labels := prometheus.Labels{
+          "status": status,
+          "method": "{{$method.Name}}",
+        }
+
+        observer, err := {{$decoratorVec}}.GetMetricWith(labels)
+		    if err != nil {
+			    fmt.Printf("MetricName %s: Error to get metric with labels %v\n", d.metricName, labels)
+		    }
+
+        observer.Observe(float64(time.Since(since).Milliseconds()))
+      }()
+    {{$method.Pass "d.base."}}
+  }
+{{end}}
+
+// New{{$decorator}} returns an instance of the {{.Interface.Type}} decorated with red histogram metric
+func New{{$decorator}}{{$generic_type}}(
+  base    {{.Interface.Type}}{{$generic_vars}},
+  subsystem string,
+  constLabels prometheus.Labels,
+) (decorator {{.Interface.Type}}{{$generic_vars}}, err error) {
+  decorateAll := os.Getenv("DECORATE_ALL")
+  decorateRED := os.Getenv("DECORATE_RED")
+  if !((decorateAll == "true" || decorateAll == "1") || (decorateRED == "true" || decorateRED == "1"))  {
+    return base, nil
+  }
+  
+  mNamespace := strings.ToLower(strings.TrimSpace("{{$namespace}}"))
+	mSubsystem := strings.ToLower(strings.TrimSpace(subsystem))
+	mName := strings.ToLower(strings.TrimSpace("{{$metric_name}}"))
+
+	metricConfig := prometheus.HistogramOpts{
+		Namespace:   mNamespace,
+		Subsystem:   mSubsystem,
+		Name:        mName,
+		Help:        "{{$metric_help}}",
+		ConstLabels: constLabels,
+		Buckets:     prometheus.{{$bucket_func}},
+	}
+
+  if {{$decoratorVec}} == nil {
+    {{$decoratorVec}} = prometheus.NewHistogramVec(metricConfig, []string{"status", "method"})
+  }
+  
+  decorator = {{$decorator}}{{$generic_vars}}{
+    metricName: prometheus.BuildFQName(mNamespace, mName, mSubsystem),
+    base: base,
+  }
+
+  return
+}

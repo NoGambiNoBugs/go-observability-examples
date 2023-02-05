@@ -41,12 +41,13 @@ func (d CustomerUsecaseWithLog) Create(ctx context.Context, customer entity.Cust
 
 // NewCustomerUsecaseWithLog instruments an implementation of the port.CustomerUsecase with simple logging
 func NewCustomerUsecaseWithLog(base port.CustomerUsecase) port.CustomerUsecase {
-	decorate := os.Getenv("DECORATE")
-	if decorate == "true" || decorate == "1" {
-		return CustomerUsecaseWithLog{
-			base: base,
-		}
+	decorateAll := os.Getenv("DECORATE_ALL")
+	decorateLog := os.Getenv("DECORATE_LOG")
+	if !((decorateAll == "true" || decorateAll == "1") || (decorateLog == "true" || decorateLog == "1")) {
+		return base
 	}
 
-	return base
+	return CustomerUsecaseWithLog{
+		base: base,
+	}
 }

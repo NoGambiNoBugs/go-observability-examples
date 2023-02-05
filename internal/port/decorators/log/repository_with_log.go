@@ -41,12 +41,13 @@ func (d RepositoryWithLog) InsertCustomer(ctx context.Context, customer entity.C
 
 // NewRepositoryWithLog instruments an implementation of the port.Repository with simple logging
 func NewRepositoryWithLog(base port.Repository) port.Repository {
-	decorate := os.Getenv("DECORATE")
-	if decorate == "true" || decorate == "1" {
-		return RepositoryWithLog{
-			base: base,
-		}
+	decorateAll := os.Getenv("DECORATE_ALL")
+	decorateLog := os.Getenv("DECORATE_LOG")
+	if !((decorateAll == "true" || decorateAll == "1") || (decorateLog == "true" || decorateLog == "1")) {
+		return base
 	}
 
-	return base
+	return RepositoryWithLog{
+		base: base,
+	}
 }

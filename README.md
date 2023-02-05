@@ -40,3 +40,31 @@ go run ./cmd/server/server.go
 # DOWN infrastructure
 docker-compose down
 ```
+
+
+-- Quais metricas? Porque Histograma, porque RED?
+
+-- Explicar o que é white box e black box
+https://sre.google/sre-book/monitoring-distributed-systems/
+
+-- Explicar o que sao os 4 golden signals
+https://sre.google/sre-book/monitoring-distributed-systems/#xref_monitoring_golden-signals
+
+-- Diferença de RED (applicational) e USE (infrastructure) e porque usamos RED
+https://blog.invgate.com/sre-signals
+
+- Começar com o Init do instrumentation
+- Fazer a parte do enpoint pra exportar metrics
+
+- Exemplo de codigo sem template, e explicar sobre o RED
+
+- Passagem para template, explicar um pouco mais obre o goWrap
+-- Falar do generics, e da pequena gambi / martelada / solucao tatica em portugal
+
+- Ajuste do Setup na aplicação e testar as metrics com command.
+
+- Mostrar a quantidade de codigo escrito vs quantidade de codigo gerado...
+
+- Falar dos comentarios.
+
+- Dar a deixa de como automatizar esta geracao.

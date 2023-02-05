@@ -60,12 +60,13 @@ type {{$decorator}}{{$generic_type}} struct {
 
 // New{{$decorator}} instruments an implementation of the {{.Interface.Type}} with simple logging
 func New{{$decorator}}{{$generic_type}}(base {{.Interface.Type}}{{$generic_vars}}) {{.Interface.Type}}{{$generic_vars}} {
-  decorate := os.Getenv("DECORATE")
-  if decorate == "true" || decorate == "1" {
-    return {{$decorator}}{{$generic_vars}}{
-        base: base,
-    }
+  decorateAll := os.Getenv("DECORATE_ALL")
+  decorateLog := os.Getenv("DECORATE_LOG")
+  if !((decorateAll == "true" || decorateAll == "1") || (decorateLog == "true" || decorateLog == "1"))  {
+    return base
   }
   
-  return base
+  return {{$decorator}}{{$generic_vars}}{
+      base: base,
+  }
 }
